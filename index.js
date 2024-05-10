@@ -1,5 +1,5 @@
-import * as THREE from './three/build/three.module.js';
-import { GLTFExporter } from './three/examples/jsm/exporters/GLTFExporter.js';
+import * as THREE from 'three';
+import { GLTFExporter } from 'gltfexporter';
 
 const canvas = document.querySelector('.webgl');
 const scene = new THREE.Scene();
