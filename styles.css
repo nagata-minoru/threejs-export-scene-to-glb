@@ -1,0 +1,15 @@
+#download-glb {
+  height: 40px;
+  width: 200px;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+canvas {
+  background-color: aqua;
+}
