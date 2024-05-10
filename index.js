@@ -28,12 +28,14 @@ const save = (blob, filename) => {
   link.click();
 };
 
-const btn = document.getElementById('download-glb');
-btn.onclick = () => {
-  const exporter = new GLTFExporter();
-  exporter.parse(
+document.getElementById('download-glb').onclick = () => {
+  scene.remove(camera);
+  (new GLTFExporter()).parse(
     scene,
-    gltf => save(new Blob([gltf], { type: 'application/octet-stream' }), 'scene.glb'),
+    gltf => {
+      scene.add(camera);
+      save(new Blob([gltf], { type: 'application/octet-stream' }), 'scene.glb');
+    },
     error => console.log(error),
     { binary: true }
   );
