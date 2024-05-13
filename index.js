@@ -24,25 +24,29 @@ scene.add(ambientLight);
 const link = document.createElement('a');
 document.body.appendChild(link);
 
+// 'upload-glb'というIDを持つHTML要素がクリックされたとき、
+// 隠されたファイル入力('file-input')を自動でクリックして、ファイル選択ダイアログを開きます📂👆
 document.getElementById('upload-glb').onclick = () => document.getElementById('file-input').click();
 
+// ファイル入力が変更されたとき(新しいファイルが選択されたとき)の処理を定義します。
+// 選択されたファイルを読み込んで、Three.jsのシーンにGLTFモデルとして追加する処理を行います🔄🌐
 document.getElementById('file-input').onchange = (event) => {
-  const file = event.target.files[0];
+  const file = event.target.files[0]; // 選択されたファイルを取得します📄
   if (!file) {
-    console.log('No file selected.');
+    console.log('No file selected.');  // ファイルが選択されていなければ、ログを出力して処理を終了します。
     return;
   }
 
-  const reader = new FileReader();
-  reader.readAsArrayBuffer(file);
+  const reader = new FileReader(); // ファイルリーダーを作成して、ファイルを読み込む準備をします👓
+  reader.readAsArrayBuffer(file); // ファイルをArrayBuffer形式で読み込みます。
 
-  reader.onload = () => {
+  reader.onload = () => { // GLTFLoaderを使用して、読み込んだデータからGLTFモデルを解析します🔄
     const loader = new GLTFLoader();
     loader.parse(reader.result, '', (gltf) => {
-      scene.add(gltf.scene);
-      console.log('GLB file loaded and added to the scene.');
+      scene.add(gltf.scene); // 解析が完了したGLTFモデルをシーンに追加します🎬
+      console.log('GLB file loaded and added to the scene.'); // ログを出力します。
 
-      // モデルのバウンディングボックスを計算
+      // モデルのバウンディングボックスを計算して、カメラの位置を調整するための処理を以下で行います📏📐
       const box = new THREE.Box3().setFromObject(gltf.scene);
       const center = box.getCenter(new THREE.Vector3());
       const size = box.getSize(new THREE.Vector3());
@@ -67,7 +71,7 @@ document.getElementById('file-input').onchange = (event) => {
         controls.update();
       }
     }, (error) => {
-      console.log('An error happened while loading the GLB file:', error);
+      console.log('An error happened while loading the GLB file:', error); // エラーが発生した場合にログを出力します。
     });
   };
 };
