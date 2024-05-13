@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'gltflaoder';
 import { GLTFExporter } from 'gltfexporter';
 import { OrbitControls } from 'orbitcontrols';
 
@@ -6,27 +7,70 @@ import { OrbitControls } from 'orbitcontrols';
 const canvas = document.querySelector('.webgl');
 const scene = new THREE.Scene();
 
-// 立方体と球体のジオメトリを生成するコードです🔲🔵
-const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
-const sphereGeometry = new THREE.SphereGeometry(1, 100, 10);
+// ライトの追加
+const directionalLight1 = new THREE.DirectionalLight(0xffffff, 5);
+directionalLight1.position.set(1, 1, 1).normalize();
+scene.add(directionalLight1);
 
-// マテリアル設定、色はインディゴとブルーです🎨
-const material1 = new THREE.MeshBasicMaterial({ color: 'indigo' });
-const material2 = new THREE.MeshBasicMaterial({ color: 'blue' });
+const directionalLight2 = new THREE.DirectionalLight(0xffffff, 5);
+directionalLight2.position.set(-1, -1, -1).normalize();
+scene.add(directionalLight2);
 
-// メッシュを作成してシーンに追加するコードです🎭
-const mesh1 = new THREE.Mesh(cubeGeometry, material1);
-const mesh2 = new THREE.Mesh(sphereGeometry, material2);
-
-scene.add(mesh1, mesh2);
-
-// mesh2のスケールと位置を調整するコードです📏
-mesh2.scale.set(0.5, 0.5, 0.5);
-mesh2.position.set(0, 1, 0);
+// 環境光の追加
+const ambientLight = new THREE.AmbientLight(0x404040); // ソフトホワイトライト
+scene.add(ambientLight);
 
 // ダウンロードリンクを作成してDOMに追加するコードです🔗
 const link = document.createElement('a');
 document.body.appendChild(link);
+
+document.getElementById('upload-glb').onclick = () => document.getElementById('file-input').click();
+
+document.getElementById('file-input').onchange = (event) => {
+  const file = event.target.files[0];
+  if (!file) {
+    console.log('No file selected.');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.readAsArrayBuffer(file);
+
+  reader.onload = () => {
+    const loader = new GLTFLoader();
+    loader.parse(reader.result, '', (gltf) => {
+      scene.add(gltf.scene);
+      console.log('GLB file loaded and added to the scene.');
+
+      // モデルのバウンディングボックスを計算
+      const box = new THREE.Box3().setFromObject(gltf.scene);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+
+      // ビューポートに合わせてカメラの位置を調整
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const fov = camera.fov * (Math.PI / 180);
+      let cameraZ = Math.abs(maxDim * Math.tan(fov / 2));
+
+      // カメラが近すぎる場合や遠すぎる場合の微調整
+      cameraZ *= 1.5; // オブジェクトに少し余裕を持たせる
+      camera.position.z = center.z + cameraZ;
+
+      // 新しい位置からのオブジェクトの注視点を設定
+      const direction = new THREE.Vector3().subVectors(camera.position, center).normalize();
+      camera.position.addVectors(center, direction.multiplyScalar(cameraZ));
+      camera.lookAt(center);
+
+      // カメラコントロールを更新（必要な場合）
+      if (controls) {
+        controls.target.copy(center);
+        controls.update();
+      }
+    }, (error) => {
+      console.log('An error happened while loading the GLB file:', error);
+    });
+  };
+};
 
 /**
  * ブラウザでファイルを保存するための関数です。
@@ -44,10 +88,14 @@ const save = (blob, filename) => {
  */
 document.getElementById('download-glb').onclick = () => {
   scene.remove(camera);
+  scene.remove(directionalLight1);
+  scene.remove(directionalLight2);
   (new GLTFExporter()).parse(
     scene,
     gltf => {
       scene.add(camera);
+      scene.add(directionalLight1);
+      scene.add(directionalLight2);
       save(new Blob([gltf], { type: 'application/octet-stream' }), 'scene.glb');
     },
     error => console.log(error),

@@ -7,6 +7,7 @@
     {
       "imports": {
         "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+        "gltflaoder": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/loaders/GLTFLoader.js",
         "gltfexporter": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/exporters/GLTFExporter.js",
         "orbitcontrols": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/controls/OrbitControls.js"
       }
@@ -16,7 +17,11 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="container"><button id="download-glb">Download GLB Format</button></div>
+  <div class="container">
+    <button id="download-glb">Download GLB Format</button>
+    <button id="upload-glb">Upload GLB File</button>
+  </div>
+  <input type="file" id="file-input" style="display:none;" accept=".glb">
   <canvas class="webgl"></canvas>
 </body>
 </html>
