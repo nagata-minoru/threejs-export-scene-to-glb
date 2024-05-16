@@ -110,7 +110,7 @@ document.getElementById('download-glb').onclick = () => {
 // ビューポートのサイズを設定するコードです📐
 const sizes = {
   width: window.innerWidth,
-  height: window.innerHeight
+  height: window.innerHeight - 60
 };
 
 // カメラを設定してシーンに追加するコードです📷
